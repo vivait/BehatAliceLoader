@@ -1,33 +1,26 @@
 <?php
 
-
 namespace Vivait\BehatAliceLoader;
-
 
 use Behat\Gherkin\Node\TableNode;
 use Behat\Symfony2Extension\Context\KernelDictionary;
-use Nelmio\Alice\ORM\Doctrine;
 
-/**
- * @mixin
- */
-trait AliceContextTrait {
+class AliceContext {
 	use KernelDictionary;
 
 	/**
-	 * @Given /^there are fixtures "([^"]*)":$/
+	 * @Given /^the "([^"]*)" fixtures have been loaded$/
 	 */
-	public function thereAreFixtures( $fixtures ) {
+	public function theFixturesHaveBeenLoaded( $fixtures ) {
 		$container     = $this->getContainer();
 		$objectManager = $container->get( 'doctrine' )->getManager();
 
 		$loader  = new BehatAliceLoader();
-		$objects = $loader->load($fixtures);
+		foreach( $loader->load( $fixtures ) as $entity) {
+			$objectManager->merge($entity);
+		}
 
-		$persister = new Doctrine( $objectManager );
-		$persister->persist( $objects );
-
-		return true;
+		$objectManager->flush();
 	}
 
 	/**
@@ -35,15 +28,13 @@ trait AliceContextTrait {
 	 */
 	public function thereAreTheFollowing( $entity, TableNode $table ) {
 		$container     = $this->getContainer();
-
 		$objectManager = $container->get( 'doctrine' )->getManager();
 
 		$loader  = new BehatAliceLoader();
-		$objects = $loader->loadTableNode( $entity, $table );
+		foreach( $loader->loadTableNode( $entity, $table ) as $entity) {
+			$objectManager->merge($entity);
+		}
 
-		$persister = new Doctrine( $objectManager );
-		$persister->persist( $objects );
-
-		return true;
+		$objectManager->flush();
 	}
 } 
