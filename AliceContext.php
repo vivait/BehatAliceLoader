@@ -1,40 +1,57 @@
 <?php
 
+
 namespace Vivait\BehatAliceLoader;
 
+
+use Behat\Behat\Context\BehatContext;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Symfony2Extension\Context\KernelDictionary;
+use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Nelmio\Alice\ORM\Doctrine;
 
-class AliceContext {
+/**
+ * @mixin
+ */
+class AliceContext extends BehatContext {
 	use KernelDictionary;
 
 	/**
-	 * @Given /^the "([^"]*)" fixtures have been loaded$/
+	 * @Given /^the database is clean$/
 	 */
-	public function theFixturesHaveBeenLoaded( $fixtures ) {
-		$container     = $this->getContainer();
-		$objectManager = $container->get( 'doctrine' )->getManager();
+	public function theDatabaseIsClean()
+	{
+		$em = $this->getContainer()->get('doctrine.orm.entity_manager');
+
+		$purger = new ORMPurger($em);
+		$executor = new ORMExecutor($em, $purger);
+		$executor->purge();
+	}
+
+	/**
+	 * @Given /^there are fixtures "([^"]*)":$/
+	 */
+	public function thereAreFixtures( $fixtures ) {
+		$objectManager = $this->getContainer()->get('doctrine.orm.entity_manager');
 
 		$loader  = new BehatAliceLoader();
-		foreach( $loader->load( $fixtures ) as $entity) {
-			$objectManager->merge($entity);
-		}
+		$objects = $loader->load($fixtures);
 
-		$objectManager->flush();
+		$persister = new Doctrine( $objectManager );
+		$persister->persist( $objects );
 	}
 
 	/**
 	 * @Given /^there are the following "([^"]*)":$/
 	 */
 	public function thereAreTheFollowing( $entity, TableNode $table ) {
-		$container     = $this->getContainer();
-		$objectManager = $container->get( 'doctrine' )->getManager();
+		$objectManager = $this->getContainer()->get('doctrine.orm.entity_manager');
 
 		$loader  = new BehatAliceLoader();
-		foreach( $loader->loadTableNode( $entity, $table ) as $entity) {
-			$objectManager->merge($entity);
-		}
+		$objects = $loader->loadTableNode( $objectManager->getClassMetadata($entity)->getName(), $table );
 
-		$objectManager->flush();
+		$persister = new Doctrine( $objectManager );
+		$persister->persist( $objects );
 	}
 } 
