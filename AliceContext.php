@@ -43,6 +43,8 @@ class AliceContext extends BehatContext {
 
 		$persister = new Doctrine( $objectManager );
 		$persister->persist( $objects );
+
+		return $objects;
 	}
 
 	/**
@@ -54,5 +56,7 @@ class AliceContext extends BehatContext {
 		$objects = $this->loader->loadTableNode( $objectManager->getClassMetadata($entity)->getName(), $table );
 		$persister = new Doctrine( $objectManager );
 		$persister->persist( $objects );
+
+		return $objects;
 	}
 } 
