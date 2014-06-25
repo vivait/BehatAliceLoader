@@ -17,6 +17,10 @@ use Nelmio\Alice\ORM\Doctrine;
 class AliceContext extends BehatContext {
 	use KernelDictionary;
 
+	function __construct() {
+		$this->loader = new BehatAliceLoader();
+	}
+
 	/**
 	 * @Given /^the database is clean$/
 	 */
@@ -35,8 +39,7 @@ class AliceContext extends BehatContext {
 	public function thereAreFixtures( $fixtures ) {
 		$objectManager = $this->getContainer()->get('doctrine.orm.entity_manager');
 
-		$loader  = new BehatAliceLoader();
-		$objects = $loader->load($fixtures);
+		$objects = $this->loader->load($fixtures);
 
 		$persister = new Doctrine( $objectManager );
 		$persister->persist( $objects );
@@ -48,9 +51,7 @@ class AliceContext extends BehatContext {
 	public function thereAreTheFollowing( $entity, TableNode $table ) {
 		$objectManager = $this->getContainer()->get('doctrine.orm.entity_manager');
 
-		$loader  = new BehatAliceLoader();
-		$objects = $loader->loadTableNode( $objectManager->getClassMetadata($entity)->getName(), $table );
-
+		$objects = $this->loader->loadTableNode( $objectManager->getClassMetadata($entity)->getName(), $table );
 		$persister = new Doctrine( $objectManager );
 		$persister->persist( $objects );
 	}
