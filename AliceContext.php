@@ -39,7 +39,10 @@ class AliceContext extends BehatContext {
 	public function thereAreFixtures( $fixtures ) {
 		$objectManager = $this->getContainer()->get('doctrine.orm.entity_manager');
 
+		$cwd = getcwd();
+		chdir($this->getKernel()->getRootDir() .'/../');
 		$objects = $this->loader->load($fixtures);
+		chdir( $cwd );
 
 		$persister = new Doctrine( $objectManager );
 		$persister->persist( $objects );
