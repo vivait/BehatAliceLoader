@@ -34,7 +34,7 @@ class AliceContext extends BehatContext {
 	}
 
 	/**
-	 * @Given /^there are fixtures "([^"]*)":$/
+	 * @Given /^there are fixtures "([^"]*)"$/
 	 */
 	public function thereAreFixtures( $fixtures ) {
 		$objectManager = $this->getContainer()->get('doctrine.orm.entity_manager');
