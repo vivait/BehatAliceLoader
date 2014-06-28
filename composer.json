@@ -11,9 +11,9 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "nelmio/alice": "*",
-        "behat/behat": "*",
-        "symfony/yaml": "*"
+        "nelmio/alice": "~1.7",
+        "behat/behat": "~2.5",
+        "symfony/yaml": "~2.4"
     },
     "autoload": {
         "psr-0": {
