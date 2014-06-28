@@ -9,7 +9,8 @@
             "email": "lewis@vivait.co.uk"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
         "nelmio/alice": "~1.7",
         "behat/behat": "~2.5",
