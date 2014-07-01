@@ -14,52 +14,76 @@ use Nelmio\Alice\ORM\Doctrine;
 /**
  * @mixin
  */
-class AliceContext extends BehatContext {
-	use KernelDictionary;
+class AliceContext extends BehatContext
+{
+    /**
+     * @var BehatAliceLoader
+     */
+    protected $loader;
 
-	function __construct() {
-		$this->loader = new BehatAliceLoader();
-	}
+    /**
+     * @var Doctrine
+     */
+    protected $persister;
 
-	/**
-	 * @Given /^the database is clean$/
-	 */
-	public function theDatabaseIsClean()
-	{
-		$em = $this->getContainer()->get('doctrine.orm.entity_manager');
+    use KernelDictionary;
 
-		$purger = new ORMPurger($em);
-		$executor = new ORMExecutor($em, $purger);
-		$executor->purge();
-	}
+    function __construct()
+    {
+        $this->loader    = new BehatAliceLoader();
+    }
 
-	/**
-	 * @Given /^there are fixtures "([^"]*)"$/
-	 */
-	public function thereAreFixtures( $fixtures ) {
-		$objectManager = $this->getContainer()->get('doctrine.orm.entity_manager');
+    protected function getPersister() {
+        if ($this->persister) {
+            return $this->persister;
+        }
 
-		$cwd = getcwd();
-		chdir($this->getKernel()->getRootDir() .'/../');
-		$objects = $this->loader->load($fixtures);
-		chdir( $cwd );
+        $objectManager   = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $this->persister = new Doctrine($objectManager);
 
-		$persister = new Doctrine( $objectManager );
-		$persister->persist( $objects );
+        $this->loader->setORM($this->persister);
 
-		return $objects;
-	}
+        return $this->persister;
+    }
 
-	/**
-	 * @Given /^there are the following "([^"]*)":$/
-	 */
-	public function thereAreTheFollowing( $entity, TableNode $table ) {
-		$objectManager = $this->getContainer()->get('doctrine.orm.entity_manager');
+    /**
+     * @Given /^the database is clean$/
+     * @Given /^the database is empty$/
+     */
+    public function theDatabaseIsClean()
+    {
+        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
 
-		$objects = $this->loader->loadTableNode( $objectManager->getClassMetadata($entity)->getName(), $table );
-		$persister = new Doctrine( $objectManager );
-		$persister->persist( $objects );
+        $purger   = new ORMPurger($em);
+        $executor = new ORMExecutor($em, $purger);
+        $executor->purge();
+    }
 
-		return $objects;
-	}
+    /**
+     * @Given /^there are fixtures "([^"]*)"$/
+     */
+    public function thereAreFixtures($fixtures)
+    {
+
+        $cwd = getcwd();
+        chdir($this->getKernel()->getRootDir() . '/../');
+        $objects = $this->loader->load($fixtures);
+        chdir($cwd);
+
+        $this->getPersister()->persist($objects);
+
+        return $objects;
+    }
+
+    /**
+     * @Given /^there are the following "([^"]*)":$/
+     */
+    public function thereAreTheFollowing($entity, TableNode $table)
+    {
+        $objectManager   = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $objects = $this->loader->loadTableNode($objectManager->getClassMetadata($entity)->getName(), $table);
+        $this->getPersister()->persist($objects);
+
+        return $objects;
+    }
 } 
