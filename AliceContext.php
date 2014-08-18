@@ -30,15 +30,16 @@ class AliceContext extends BehatContext
 
     function __construct()
     {
-        $this->loader    = new BehatAliceLoader();
+        $this->loader = new BehatAliceLoader();
     }
 
-    protected function getPersister() {
+    protected function getPersister()
+    {
         if ($this->persister) {
             return $this->persister;
         }
 
-        $objectManager   = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $objectManager = $this->getContainer()->get('doctrine.orm.entity_manager');
         $this->persister = new Doctrine($objectManager);
 
         $this->loader->setORM($this->persister);
@@ -54,7 +55,7 @@ class AliceContext extends BehatContext
     {
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
 
-        $purger   = new ORMPurger($em);
+        $purger = new ORMPurger($em);
         $executor = new ORMExecutor($em, $purger);
         $executor->purge();
     }
@@ -80,14 +81,17 @@ class AliceContext extends BehatContext
 
     /**
      * @Given /^there are the following "([^"]*)":$/
+     * @param string    $entity The entity class name
+     * @param TableNode $table  A TableNode containing the data
+     * @return mixed[] An array of entities
      */
     public function thereAreTheFollowing($entity, TableNode $table)
     {
-        $objectManager   = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $objectManager = $this->getContainer()->get('doctrine.orm.entity_manager');
 
         $objects = $this->loader->loadTableNode($objectManager->getClassMetadata($entity)->getName(), $table);
         $this->getPersister()->persist($objects);
 
         return $objects;
     }
-} 
+}
