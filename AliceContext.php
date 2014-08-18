@@ -61,6 +61,9 @@ class AliceContext extends BehatContext
 
     /**
      * @Given /^there are fixtures "([^"]*)"$/
+     * @Given /^the fixtures are loaded "([^"]*)"$/
+     * @param string $fixtures Path to the fixtures
+     * @return array
      */
     public function thereAreFixtures($fixtures)
     {
@@ -81,6 +84,7 @@ class AliceContext extends BehatContext
     public function thereAreTheFollowing($entity, TableNode $table)
     {
         $objectManager   = $this->getContainer()->get('doctrine.orm.entity_manager');
+
         $objects = $this->loader->loadTableNode($objectManager->getClassMetadata($entity)->getName(), $table);
         $this->getPersister()->persist($objects);
 
