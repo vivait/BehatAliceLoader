@@ -26,8 +26,8 @@ class BehatAliceLoader extends Yaml
     }
 
     /**
-     * @param array $data An array of fixtures
-     * @return array An array of entities
+     * @param mixed[] $data An array of fixtures
+     * @return mixed[] An array of entities
      */
     public function loadArray($data)
     {
@@ -36,7 +36,7 @@ class BehatAliceLoader extends Yaml
 
     /**
      * @param string $data The filename to load
-     * @return array An array of entities
+     * @return mixed[] An array of entities
      */
     public function loadFile($data)
     {
@@ -46,7 +46,7 @@ class BehatAliceLoader extends Yaml
     /**
      * @param string    $entity The entity class name
      * @param TableNode $data A TableNode containing the data
-     * @return array An array of entities
+     * @return mixed[] An array of entities
      */
     public function loadTableNode($entity, TableNode $data)
     {
@@ -71,7 +71,7 @@ class BehatAliceLoader extends Yaml
 
     /**
      * @param TableNode $data
-     * @return null
+     * @return string
      */
     private function getReferenceColumn(TableNode $data)
     {
