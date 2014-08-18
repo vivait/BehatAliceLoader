@@ -35,12 +35,21 @@ class BehatAliceLoader extends Yaml
 
     public function loadTableNode($entity, TableNode $data) {
         $hash = [];
+        $key = null;
+
+        foreach ($data->getRow(0) as $col => $header) {
+            if ($col === 0 || $header[0] === '@') {
+                $key = $header;
+            }
+        }
+
         // Parse any inline YAML inside a cell
         foreach ($data->getHash() as $row) {
-	        $key = current( $row );
 
             foreach ($row as $j => $cell) {
-                $hash[$key][$j] = Inline::parse($cell);
+                if ($j[0] === '@') continue;
+
+                $hash[$key][$j] = Inline::parse($cell, false, true);
             }
         }
 
