@@ -25,35 +25,67 @@ class BehatAliceLoader extends Yaml
         return $this->loadFile($data);
     }
 
-    public function loadArray($data) {
+    /**
+     * @param array $data An array of fixtures
+     * @return array An array of entities
+     */
+    public function loadArray($data)
+    {
         return Base::load($data);
     }
 
-    public function loadFile($data) {
+    /**
+     * @param string $data The filename to load
+     * @return array An array of entities
+     */
+    public function loadFile($data)
+    {
         return parent::load($data);
     }
 
-    public function loadTableNode($entity, TableNode $data) {
+    /**
+     * @param string    $entity The entity class name
+     * @param TableNode $data A TableNode containing the data
+     * @return array An array of entities
+     */
+    public function loadTableNode($entity, TableNode $data)
+    {
         $hash = [];
-        $key_col = null;
-
-        foreach ($data->getRow(0) as $col => $header) {
-            if ($col === 0 || $header[0] === '@') {
-                $key_col = $header;
-            }
-        }
+        $reference_col = $this->getReferenceColumn($data);
 
         // Parse any inline YAML inside a cell
         foreach ($data->getHash() as $row) {
-            $key = $row[$key_col];
+            $key = $row[$reference_col];
 
             foreach ($row as $j => $cell) {
-                if ($j[0] === '@') continue;
+                if ($j[0] === '@') {
+                    continue;
+                }
 
                 $hash[$key][$j] = Inline::parse($cell, false, true);
             }
         }
 
-        return Base::load([$entity => $hash]);
+        return $this->loadArray([$entity => $hash]);
+    }
+
+    /**
+     * @param TableNode $data
+     * @return null
+     */
+    private function getReferenceColumn(TableNode $data)
+    {
+        $default_col = null;
+
+        foreach ($data->getRow(0) as $col => $header) {
+            if ($header[0] === '@') {
+                return $header;
+            }
+            else if ($col === 0) {
+                $default_col = $header;
+            }
+        }
+
+        return $default_col;
     }
 }
