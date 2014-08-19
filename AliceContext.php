@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Vivait\BehatAliceLoader;
-
 
 use Behat\Behat\Context\BehatContext;
 use Behat\Gherkin\Node\TableNode;
