@@ -48,6 +48,7 @@ class AliceContext extends BehatContext
     /**
      * @Given /^the database is clean$/
      * @Given /^the database is empty$/
+     * @BeforeScenario @fixtures
      */
     public function theDatabaseIsClean()
     {
