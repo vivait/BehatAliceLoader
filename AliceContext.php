@@ -7,7 +7,9 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Symfony2Extension\Context\KernelDictionary;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\ORM\Tools\SchemaTool;
 use Nelmio\Alice\ORM\Doctrine;
+use \Doctrine\DBAL\Driver\PDOSqlite\Driver as PDOSqlite;
 
 /**
  * @mixin
@@ -54,9 +56,21 @@ class AliceContext extends BehatContext
     {
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
 
+        if($em->getConnection()->getDriver() instanceof PDOSqlite){
+            $this->createSchema();
+        }
+
         $purger = new ORMPurger($em);
         $executor = new ORMExecutor($em, $purger);
         $executor->purge();
+    }
+
+    private function createSchema()
+    {
+        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $tool = new SchemaTool($em);
+        $meta = $em->getMetaDataFactory()->getAllMetaData();
+        $tool->createSchema($meta);
     }
 
     /**
