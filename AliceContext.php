@@ -7,6 +7,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Symfony2Extension\Context\KernelDictionary;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\ORM\Tools\SchemaTool;
 use Nelmio\Alice\ORM\Doctrine;
 
 /**
@@ -54,9 +55,19 @@ class AliceContext extends BehatContext
     {
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
 
+        $this->updateSchema();
+
         $purger = new ORMPurger($em);
         $executor = new ORMExecutor($em, $purger);
         $executor->purge();
+    }
+
+    private function updateSchema()
+    {
+        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $tool = new SchemaTool($em);
+        $meta = $em->getMetaDataFactory()->getAllMetaData();
+        $tool->updateSchema($meta);
     }
 
     /**
